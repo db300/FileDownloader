@@ -20,6 +20,7 @@ namespace FileDownloader
         #endregion
 
         #region property
+        private const string Url4Appreciate = "https://www.yuque.com/docs/share/4d2ad434-a4fe-40a1-b530-c61811d5226e?# 《打赏说明》";
         private const int ControlMargin = 20;
         private const int ControlPadding = 12;
         private static string DownloadDir => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
@@ -72,7 +73,17 @@ namespace FileDownloader
         private void InitUi()
         {
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "文件下载器";
+            Text = $"文件下载器 {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+
+            var lkbl = new LinkLabel
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                AutoSize = true,
+                Parent = this,
+                Text = "如果觉得好用，来打赏一下啊 O(∩_∩)O 哈哈~"
+            };
+            lkbl.Location = new Point(ClientSize.Width - ControlMargin - lkbl.Width, ControlMargin);
+            lkbl.LinkClicked += (sender, e) => { System.Diagnostics.Process.Start(Url4Appreciate); };
 
             var lbl = new Label
             {
@@ -87,12 +98,16 @@ namespace FileDownloader
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
                 Location = new Point(ControlMargin, lbl.Bottom + ControlPadding),
+                MaxLength = 0,
                 Multiline = true,
                 Parent = this,
                 ScrollBars = ScrollBars.Both,
                 Size = new Size(ClientSize.Width - 2 * ControlMargin, 200),
                 WordWrap = false
             };
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"文本框最大字符长度：{_txtTask.MaxLength}");
+#endif
 
             var btnDownload = new Button
             {
