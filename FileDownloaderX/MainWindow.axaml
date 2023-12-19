@@ -6,4 +6,27 @@
         x:Class="FileDownloaderX.MainWindow"
         FontFamily="Microsoft YaHei,Simsun,苹方-简,宋体-简"
         Title="FileDownloaderX">
+  <DockPanel>
+    <DockPanel DockPanel.Dock="Top">
+      <TextBlock Margin="20" Text="将文件链接粘贴到下方任务列表（一条链接一行）" Foreground="Red" DockPanel.Dock="Left"/>
+      <TextBlock Margin="20" Text="如果觉得好用，来打赏一下啊 O(∩_∩)O 哈哈~" Cursor="Hand" TextAlignment="Right" Foreground="Blue" DockPanel.Dock="Right"/>
+    </DockPanel>
+
+    <DockPanel DockPanel.Dock="Top" Height="300" Margin="20 0">
+      <TextBox AcceptsReturn="True"/>
+    </DockPanel>
+
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+      <Button Margin="20" Content="下载" Name="btnDownload"/>
+      <TextBlock Name="lblDownloadDir" Text="默认下载路径：" VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <DockPanel>
+      <Border BorderBrush="Black" BorderThickness="1" Margin="20 0 20 20">
+        <ScrollViewer>
+          <TextBlock TextWrapping="NoWrap"/>
+        </ScrollViewer>
+      </Border>
+    </DockPanel>
+  </DockPanel>
 </Window>
