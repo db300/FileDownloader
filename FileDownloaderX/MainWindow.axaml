@@ -13,7 +13,7 @@
     </DockPanel>
 
     <DockPanel DockPanel.Dock="Top" Height="300" Margin="20 0">
-      <TextBox AcceptsReturn="True"/>
+      <TextBox Name="txtTask" AcceptsReturn="True"/>
     </DockPanel>
 
     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">

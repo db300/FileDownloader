@@ -1,6 +1,9 @@
 using Avalonia.Controls;
+using Downloader;
 using System;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 
 namespace FileDownloaderX;
 
@@ -21,10 +24,53 @@ public partial class MainWindow : Window
     #endregion
 
     #region event handler
-    private void BtnDownload_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void BtnDownload_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
 #if DEBUG
         System.Diagnostics.Debug.WriteLine("µã»÷ÏÂÔØ°´Å¥");
+#endif
+        var urls = txtTask?.Text?.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (!(urls?.Count > 0)) return;
+        var dir = DownloadDir;
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        var path = new DirectoryInfo(dir);
+        var downloader = new DownloadService();
+        downloader.DownloadProgressChanged += DownloadProgressChanged;
+        downloader.DownloadFileCompleted += DownloadFileCompleted;
+        downloader.DownloadStarted += DownloadStarted;
+        downloader.ChunkDownloadProgressChanged += ChunkDownloadProgressChanged;
+        foreach (var url in urls)
+        {
+            await downloader.DownloadFileTaskAsync(url, path);
+        }
+
+    }
+
+    private void ChunkDownloadProgressChanged(object? sender, DownloadProgressChangedEventArgs e)
+    {
+#if DEBUG
+        //System.Diagnostics.Debug.WriteLine($"ChunkDownloadProgressChanged: {e.ProgressId}, {e.ProgressedByteSize}");
+#endif
+    }
+
+    private void DownloadStarted(object? sender, DownloadStartedEventArgs e)
+    {
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine($"DownloadStarted: {e.FileName}, {e.TotalBytesToReceive}");
+#endif
+    }
+
+    private void DownloadFileCompleted(object? sender, AsyncCompletedEventArgs e)
+    {
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine($"DownloadFileCompleted: {e.UserState}, {e.Error}");
+#endif
+    }
+
+    private void DownloadProgressChanged(object? sender, DownloadProgressChangedEventArgs e)
+    {
+#if DEBUG
+        //System.Diagnostics.Debug.WriteLine($"DownloadProgressChanged: {e.ProgressId}, {e.ProgressedByteSize}");
 #endif
     }
     #endregion
