@@ -29,6 +29,7 @@ namespace FileDownloader
         private static string DownloadDir => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
         private TextBox _txtTask;
         private TextBox _txtLog;
+        private ProgressBar _progressFile;
         private static readonly List<DownloadTaskItem> _downloadTaskList = new List<DownloadTaskItem>();
         #endregion
 
@@ -151,6 +152,7 @@ namespace FileDownloader
         #region ui
         private void InitUi()
         {
+            ClientSize = new Size(1000, 600);
             StartPosition = FormStartPosition.CenterScreen;
             Text = $"文件下载器 {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
 
@@ -214,6 +216,17 @@ namespace FileDownloader
                 Text = $"默认下载路径：{DownloadDir}"
             };
 
+            _progressFile = new ProgressBar
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                Location = new Point(ControlMargin, ClientSize.Height - ControlMargin - 20),
+                Maximum = 100,
+                Minimum = 0,
+                Parent = this,
+                Size = new Size(ClientSize.Width - 2 * ControlMargin, 20),
+                Value = 0
+            };
+
             _txtLog = new TextBox
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
@@ -222,10 +235,11 @@ namespace FileDownloader
                 Parent = this,
                 ReadOnly = true,
                 ScrollBars = ScrollBars.Both,
-                Size = new Size(ClientSize.Width - 2 * ControlMargin, ClientSize.Height - ControlMargin - ControlPadding - btnDownload.Bottom),
+                Size = new Size(ClientSize.Width - 2 * ControlMargin, _progressFile.Top - ControlPadding - btnDownload.Bottom - ControlPadding),
                 WordWrap = false
             };
 
+            /*
             var lkbl = new LinkLabel
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
@@ -235,12 +249,13 @@ namespace FileDownloader
             };
             lkbl.Location = new Point(ClientSize.Width - ControlMargin - lkbl.Width, btnImportExcel.Top + (btnImportExcel.Height - lkbl.Height) / 2);
             lkbl.LinkClicked += (sender, e) => { System.Diagnostics.Process.Start(Url4Appreciate); };
+            */
 
-            lkbl = new LinkLabel
+            var lkbl = new LinkLabel
             {
                 AutoSize = true,
                 Parent = this,
-                Text = "点击查看使用说明"
+                Text = "使用说明"
             };
             lkbl.Location = new Point(btnPaste.Right + ControlPadding, btnImportExcel.Top + (btnImportExcel.Height - lkbl.Height) / 2);
             lkbl.LinkClicked += (sender, e) => { System.Diagnostics.Process.Start(Url4Readme); };
