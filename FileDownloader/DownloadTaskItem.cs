@@ -13,5 +13,13 @@
         /// 保存文件名
         /// </summary>
         public string FileName { get; set; }
+        /// <summary>
+        /// 任务索引
+        /// </summary>
+        public int Index { get; set; } = -1;
+        /// <summary>
+        /// 下载临时文件
+        /// </summary>
+        public string TmpFileName { get; set; }
     }
 }

@@ -6,6 +6,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileDownloader
@@ -31,9 +33,24 @@ namespace FileDownloader
         private TextBox _txtLog;
         private ProgressBar _progressFile;
         private static readonly List<DownloadTaskItem> _downloadTaskList = new List<DownloadTaskItem>();
+        private readonly ManualResetEvent _pauseEvent = new ManualResetEvent(false);
+        private int _lastProgressPercentage = 0;
+        #endregion
+
+        #region method
+        private void UpdateProgressBar(int progressPercentage)
+        {
+            // 只有当进度变化超过5%时才更新进度条
+            if (Math.Abs(progressPercentage - _lastProgressPercentage) >= 5)
+            {
+                _progressFile.Value = progressPercentage;
+                _lastProgressPercentage = progressPercentage;
+            }
+        }
         #endregion
 
         #region event handler
+        /*
         private void BtnDownload_Click(object sender, EventArgs e)
         {
             var totalCount = _downloadTaskList?.Count;
@@ -70,6 +87,40 @@ namespace FileDownloader
                 _txtLog.AppendText("下载完成\r\n");
             };
             background.RunWorkerAsync();
+        }
+        */
+
+        private async void BtnDownload_Click(object sender, EventArgs e)
+        {
+            var totalCount = _downloadTaskList?.Count;
+            if (!(totalCount > 0)) return;
+            var dir = DownloadDir;
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            var webClient = new WebClient();
+            webClient.DownloadProgressChanged += WebClient_DownloadProgressChanged;
+            webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
+
+            await Task.Run(async () =>
+            {
+                for (var i = 0; i < totalCount; i++)
+                {
+                    var url = _downloadTaskList[i].Url;
+                    var fileName = _downloadTaskList[i].FileName;
+                    try
+                    {
+                        var tmpFileName = Path.GetTempFileName();
+                        await webClient.DownloadFileTaskAsync(new Uri(url), tmpFileName);
+                        _pauseEvent.WaitOne();
+                        File.Move(tmpFileName, Path.Combine(dir, fileName));
+                        Invoke(new Action(() => _txtLog.AppendText($"【{i + 1} / {totalCount}】{url} 下载完成\r\n")));
+                    }
+                    catch (Exception ex)
+                    {
+                        Invoke(new Action(() => _txtLog.AppendText($"【{i + 1} / {totalCount}】{url} 下载失败, {ex.Message}\r\n")));
+                    }
+                }
+                Invoke(new Action(() => _txtLog.AppendText("下载完成\r\n")));
+            });
         }
 
         private void BtnImportExcel_Click(object sender, EventArgs e)
@@ -146,6 +197,26 @@ namespace FileDownloader
                 FileName = Path.GetFileName(Uri.UnescapeDataString(x))
             }));
             _txtTask.Text = string.Join(Environment.NewLine, _downloadTaskList.Select(x => x.Url));
+        }
+
+        private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            if (_progressFile.InvokeRequired)
+            {
+                _progressFile.Invoke(new Action(() =>
+                {
+                    UpdateProgressBar(e.ProgressPercentage);
+                }));
+            }
+            else
+            {
+                UpdateProgressBar(e.ProgressPercentage);
+            }
+        }
+
+        private void WebClient_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            _pauseEvent.Set();
         }
         #endregion
 
