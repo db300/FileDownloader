@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using FileDownloader.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,7 +25,7 @@ namespace FileDownloader
         #endregion
 
         #region property
-        private const string Url4Appreciate = "https://www.yuque.com/docs/share/4d2ad434-a4fe-40a1-b530-c61811d5226e?# 《打赏说明》";
+        private const string Url4Appreciate = "https://www.yuque.com/lengda/eq8cm6/rylia4";
         private const string Url4Readme = "https://www.yuque.com/lengda/eq8cm6/uwah0b1xer1d2rdt";
         private const int ControlMargin = 20;
         private const int ControlPadding = 12;
@@ -310,18 +311,6 @@ namespace FileDownloader
                 WordWrap = false
             };
 
-            /*
-            var lkbl = new LinkLabel
-            {
-                Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                AutoSize = true,
-                Parent = this,
-                Text = "如果觉得好用，来打赏一下啊~"
-            };
-            lkbl.Location = new Point(ClientSize.Width - ControlMargin - lkbl.Width, btnImportExcel.Top + (btnImportExcel.Height - lkbl.Height) / 2);
-            lkbl.LinkClicked += (sender, e) => { System.Diagnostics.Process.Start(Url4Appreciate); };
-            */
-
             var lkbl = new LinkLabel
             {
                 AutoSize = true,
@@ -330,6 +319,21 @@ namespace FileDownloader
             };
             lkbl.Location = new Point(btnPaste.Right + ControlPadding, btnImportExcel.Top + (btnImportExcel.Height - lkbl.Height) / 2);
             lkbl.LinkClicked += (sender, e) => { System.Diagnostics.Process.Start(Url4Readme); };
+
+            var pic = new PictureBox
+            {
+                Anchor = AnchorStyles.Left | AnchorStyles.Bottom,
+                Cursor = Cursors.Hand,
+                Image = Image.FromStream(new MemoryStream(Resources.redheart)),
+                Location = new Point(0, ClientSize.Height - 20),
+                Parent = this,
+                Size = new Size(20, 20),
+                SizeMode = PictureBoxSizeMode.Zoom,
+            };
+            pic.Click += (sender, e) => { System.Diagnostics.Process.Start(Url4Appreciate); };
+            // 创建并设置ToolTip
+            var toolTip = new ToolTip();
+            toolTip.SetToolTip(pic, "点击进行赞赏");
         }
         #endregion
     }
