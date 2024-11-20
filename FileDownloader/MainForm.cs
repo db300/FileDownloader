@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -113,15 +114,32 @@ namespace FileDownloader
                         await webClient.DownloadFileTaskAsync(new Uri(url), tmpFileName);
                         _pauseEvent.WaitOne();
                         File.Move(tmpFileName, Path.Combine(dir, fileName));
+                        _downloadTaskList[i].Success = true;
                         Invoke(new Action(() => _txtLog.AppendText($"【{i + 1} / {totalCount}】{url} 下载完成\r\n")));
                     }
                     catch (Exception ex)
                     {
+                        _downloadTaskList[i].Success = false;
+                        _downloadTaskList[i].Msg = ex.Message;
                         Invoke(new Action(() => _txtLog.AppendText($"【{i + 1} / {totalCount}】{url} 下载失败, {ex.Message}\r\n")));
                     }
                 }
                 Invoke(new Action(() => _txtLog.AppendText("下载完成\r\n")));
             });
+        }
+
+        private void BtnLog_Click(object sender, EventArgs e)
+        {
+            var filename = Path.Combine(DownloadDir, $"downloadlog_{DateTime.Now:yyyyMMddHHmmssfff}.csv");
+            using (var writer = new StreamWriter(filename, false, Encoding.UTF8))
+            {
+                writer.WriteLine("下载链接,保存文件名,下载结果,信息");
+                foreach (var item in _downloadTaskList)
+                {
+                    writer.WriteLine($"{item.Url},{item.FileName},{(item.Success ? "成功" : "失败")},{item.Msg}");
+                }
+            }
+            _txtLog.AppendText($"下载日志已保存到 {filename}\r\n");
         }
 
         private void BtnImportExcel_Click(object sender, EventArgs e)
@@ -254,6 +272,16 @@ namespace FileDownloader
                 Text = "直接粘贴"
             };
             btnPaste.Click += BtnPaste_Click;
+
+            var btnLog = new Button
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                AutoSize = true,
+                Parent = this,
+                Text = "保存下载日志"
+            };
+            btnLog.Location = new Point(ClientSize.Width - ControlMargin - btnLog.Width, ControlMargin);
+            btnLog.Click += BtnLog_Click;
 
             _txtTask = new TextBox
             {

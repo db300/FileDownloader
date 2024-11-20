@@ -21,5 +21,13 @@
         /// 下载临时文件
         /// </summary>
         public string TmpFileName { get; set; }
+        /// <summary>
+        /// 下载成功标识
+        /// </summary>
+        public bool Success { get; set; }
+        /// <summary>
+        /// 下载信息
+        /// </summary>
+        public string Msg { get; set; }
     }
 }
