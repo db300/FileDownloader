@@ -30,9 +30,15 @@ namespace FileDownloader
         private const string Url4Readme = "https://www.yuque.com/lengda/eq8cm6/uwah0b1xer1d2rdt";
         private const int ControlMargin = 20;
         private const int ControlPadding = 12;
-        private static string DownloadDir => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
+        private static string _downloadDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
+        private static string DownloadDir
+        {
+            get => _downloadDir;
+            set => _downloadDir = value;
+        }
         private TextBox _txtTask;
         private TextBox _txtLog;
+        private Label _lblDownloadDir;
         private ProgressBar _progressFile;
         private static readonly List<DownloadTaskItem> _downloadTaskList = new List<DownloadTaskItem>();
         private readonly ManualResetEvent _pauseEvent = new ManualResetEvent(false);
@@ -126,6 +132,19 @@ namespace FileDownloader
                 }
                 Invoke(new Action(() => _txtLog.AppendText("下载完成\r\n")));
             });
+        }
+
+        private void BtnChangeDir_Click(object sender, EventArgs e)
+        {
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    DownloadDir = folderDialog.SelectedPath;
+                    _lblDownloadDir.Text = $"下载路径：{DownloadDir}";
+                    _txtLog.AppendText($"下载目录已更改为: {DownloadDir}\r\n");
+                }
+            }
         }
 
         private void BtnLog_Click(object sender, EventArgs e)
@@ -308,7 +327,17 @@ namespace FileDownloader
             };
             btnDownload.Click += BtnDownload_Click;
 
-            var lbl = new Label
+            var btnChangeDir = new Button
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                AutoSize = true,
+                Parent = this,
+                Text = "更改下载目录"
+            };
+            btnChangeDir.Location = new Point(ClientSize.Width - ControlMargin - btnChangeDir.Width, btnDownload.Top);
+            btnChangeDir.Click += BtnChangeDir_Click;
+
+            _lblDownloadDir = new Label
             {
                 AutoSize = true,
                 Location = new Point(btnDownload.Right + ControlPadding, btnDownload.Top + 6),
