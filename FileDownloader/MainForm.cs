@@ -30,8 +30,8 @@ namespace FileDownloader
         private const string Url4Readme = "https://www.yuque.com/lengda/eq8cm6/uwah0b1xer1d2rdt";
         private const int ControlMargin = 20;
         private const int ControlPadding = 12;
-        private static string _downloadDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
-        private static string DownloadDir
+        private string _downloadDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Downloads");
+        private string DownloadDir
         {
             get => _downloadDir;
             set => _downloadDir = value;
@@ -40,7 +40,7 @@ namespace FileDownloader
         private TextBox _txtLog;
         private Label _lblDownloadDir;
         private ProgressBar _progressFile;
-        private static readonly List<DownloadTaskItem> _downloadTaskList = new List<DownloadTaskItem>();
+        private readonly List<DownloadTaskItem> _downloadTaskList = new List<DownloadTaskItem>();
         private readonly ManualResetEvent _pauseEvent = new ManualResetEvent(false);
         private int _lastProgressPercentage = 0;
         #endregion
@@ -58,46 +58,6 @@ namespace FileDownloader
         #endregion
 
         #region event handler
-        /*
-        private void BtnDownload_Click(object sender, EventArgs e)
-        {
-            var totalCount = _downloadTaskList?.Count;
-            if (!(totalCount > 0)) return;
-            var dir = DownloadDir;
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-            var background = new BackgroundWorker { WorkerReportsProgress = true };
-            background.DoWork += (work, ee) =>
-            {
-                var webClient = new WebClient();
-                for (var i = 0; i < totalCount; i++)
-                {
-                    var url = _downloadTaskList[i].Url;
-                    var fileName = _downloadTaskList[i].FileName;
-                    try
-                    {
-                        var tmpFileName = Path.GetTempFileName();
-                        webClient.DownloadFile(url, tmpFileName);
-                        File.Move(tmpFileName, Path.Combine(dir, fileName));
-                        background.ReportProgress(i + 1, $"{url} 下载完成");
-                    }
-                    catch (Exception ex)
-                    {
-                        background.ReportProgress(i + 1, $"{url} 下载失败, {ex.Message}");
-                    }
-                }
-            };
-            background.ProgressChanged += (work, ee) =>
-            {
-                if (ee.UserState is string s) _txtLog.AppendText($"【{ee.ProgressPercentage} / {totalCount}】{s}\r\n");
-            };
-            background.RunWorkerCompleted += (work, ee) =>
-            {
-                _txtLog.AppendText("下载完成\r\n");
-            };
-            background.RunWorkerAsync();
-        }
-        */
-
         private async void BtnDownload_Click(object sender, EventArgs e)
         {
             var totalCount = _downloadTaskList?.Count;
