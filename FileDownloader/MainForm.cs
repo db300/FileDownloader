@@ -222,6 +222,7 @@ namespace FileDownloader
         private void InitUi()
         {
             ClientSize = new Size(1000, 600);
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             StartPosition = FormStartPosition.CenterScreen;
             Text = $"文件下载器 {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
 
